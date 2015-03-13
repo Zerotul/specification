@@ -29,6 +29,7 @@ public class PredicateSpecificationImpl<T extends Serializable> implements Predi
 
     @Override
     public WhereSpecification<T> predicate(PredicateOperation operation) {
+        if (this.operation!=null) throw new IllegalStateException("the predicate clause can not be changed");
         this.operation = operation;
         beforeWhere.setPredicate(this);
         afterWhere = new WhereSpecificationImpl<>(this.beforeWhere.getFrom(), this.recorder);

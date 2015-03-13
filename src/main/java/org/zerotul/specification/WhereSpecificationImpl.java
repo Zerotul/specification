@@ -29,6 +29,7 @@ public class WhereSpecificationImpl<T extends Serializable> implements WhereSpec
 
     @Override
     public PredicateSpecification<T> restriction(Restriction restriction) {
+        if(this.restriction !=null) throw new IllegalStateException("the restriction clause can not be changed");
         this.restriction = restriction;
         this.restriction.setRecorder(this.recorder);
         return new PredicateSpecificationImpl<>(this, this.recorder);
