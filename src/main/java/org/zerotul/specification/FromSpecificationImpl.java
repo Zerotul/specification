@@ -58,8 +58,6 @@ public class FromSpecificationImpl<T extends Serializable> implements FromSpecif
         return where;
     }
 
-
-
     @Override
     public Specification<T> endFrom() {
         return new SpecificationImpl<>(this);

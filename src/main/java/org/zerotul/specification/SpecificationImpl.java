@@ -23,4 +23,9 @@ public class SpecificationImpl<T extends Serializable> implements Specification<
     public <V> Expression<T, V> isSatisfied(ExpressionBuilder<T, V> expressionBuilder) throws BuildException {
         return expressionBuilder.buildExpression(from);
     }
+
+    @Override
+    public Class<T> getResultClass() {
+        return from.getFromClass();
+    }
 }
