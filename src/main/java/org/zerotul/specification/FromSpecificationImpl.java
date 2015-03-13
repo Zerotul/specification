@@ -30,12 +30,14 @@ public class FromSpecificationImpl<T extends Serializable> implements FromSpecif
 
     @Override
     public WhereSpecification<T> where() {
+        if (this.where==null) throw new IllegalStateException("the where clause can not be changed");
         this.where = new WhereSpecificationImpl<>(this, recorder);
         return this.where;
     }
 
     @Override
     public OrderSpecification<T> order() {
+        if (this.order==null) throw new IllegalStateException("the order clause can not be changed");
         this.order = new OrderSpecificationImpl<>(this, recorder);
         return this.order;
     }
