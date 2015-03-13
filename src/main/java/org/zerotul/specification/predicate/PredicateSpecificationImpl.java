@@ -1,4 +1,9 @@
-package org.zerotul.specification;
+package org.zerotul.specification.predicate;
+
+import org.zerotul.specification.FromSpecification;
+import org.zerotul.specification.recorder.Recorder;
+import org.zerotul.specification.WhereSpecification;
+import org.zerotul.specification.WhereSpecificationImpl;
 
 import java.io.Serializable;
 

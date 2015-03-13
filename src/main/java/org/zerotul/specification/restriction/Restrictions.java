@@ -9,14 +9,14 @@ import java.util.function.Function;
 public abstract class Restrictions {
 
     public static  <T extends Serializable, R> Restriction<T, R> equal(Function<T, R> getter, R value){
-        return new SimpleRestriction<T, R>(getter, value, Operator.EQUAL);
+        return new SimpleRestriction<>(getter, value, Operator.EQUAL);
     }
 
     public static  <T extends Serializable, R> Restriction<T, R> like(Function<T, R> getter, R value){
-        return new SimpleRestriction<T, R>(getter, value, Operator.LIKE);
+        return new SimpleRestriction<>(getter, value, Operator.LIKE);
     }
 
     public static  <T extends Serializable, R> Restriction<T, R> notEqual(Function<T, R> getter, R value){
-        return new SimpleRestriction<T, R>(getter, value, Operator.NOT_EQUAL);
+        return new SimpleRestriction<>(getter, value, Operator.NOT_EQUAL);
     }
 }

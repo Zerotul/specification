@@ -1,7 +1,8 @@
 package org.zerotul.specification.expression;
 
 import org.zerotul.specification.FromSpecification;
-import org.zerotul.specification.PredicateOperation;
+import org.zerotul.specification.order.Order;
+import org.zerotul.specification.predicate.PredicateOperation;
 import org.zerotul.specification.WhereSpecification;
 import org.zerotul.specification.exception.BuildException;
 import org.zerotul.specification.mapper.Mapper;
@@ -12,13 +13,15 @@ import java.beans.BeanInfo;
 import java.beans.IntrospectionException;
 import java.beans.Introspector;
 import java.beans.PropertyDescriptor;
+import java.io.Serializable;
 import java.lang.String;
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * Created by zerotul on 12.03.15.
  */
-public class SqlExpressionBuilder<T> implements ExpressionBuilder<T, String> {
+public class SqlExpressionBuilder<T extends Serializable> implements ExpressionBuilder<T, String> {
 
     private final Mapper mapper;
 
@@ -29,8 +32,9 @@ public class SqlExpressionBuilder<T> implements ExpressionBuilder<T, String> {
     @Override
     public Expression<T, String> buildExpression(FromSpecification<T> specification) throws BuildException {
         try {
-            StringBuilder builder = new StringBuilder(fromClause(specification));
-            builder.append(whereClause(specification));
+            StringBuilder builder = new StringBuilder(fromClause(specification))
+            .append(whereClause(specification))
+            .append(orderClause(specification));
             return new SqlExpression<>(builder.toString());
         } catch (IntrospectionException e) {
            throw new BuildException(e);
@@ -90,6 +94,18 @@ public class SqlExpressionBuilder<T> implements ExpressionBuilder<T, String> {
                 where = null;
             }
         }while (where!=null);
+        return builder.toString();
+    }
+
+    private String orderClause(FromSpecification<T> from){
+        if(from.getOrder()==null || from.getOrder().getOrder()==null) return "";
+
+        Order<T> order = from.getOrder().getOrder();
+        StringBuilder builder = new StringBuilder(" ORDER BY ");
+        List<String> propertyNames = order.getPropertyNames().stream()
+                .map(mapper::getMapPropertyName).collect(Collectors.toList());
+        builder.append(String.join(", ", propertyNames));
+        builder.append(" ").append(order.getOrderType().toString());
         return builder.toString();
     }
 }

@@ -1,5 +1,8 @@
 package org.zerotul.specification;
 
+import org.zerotul.specification.predicate.PredicateSpecification;
+import org.zerotul.specification.predicate.PredicateSpecificationImpl;
+import org.zerotul.specification.recorder.Recorder;
 import org.zerotul.specification.restriction.Restriction;
 
 import java.io.Serializable;
@@ -15,7 +18,7 @@ public class WhereSpecificationImpl<T extends Serializable> implements WhereSpec
 
     private Restriction restriction;
 
-    private PredicateSpecification predicate;
+    private PredicateSpecification<T> predicate;
 
     private final Recorder<T> recorder;
 
@@ -42,11 +45,11 @@ public class WhereSpecificationImpl<T extends Serializable> implements WhereSpec
     }
 
     @Override
-    public PredicateSpecification getPredicate() {
+    public PredicateSpecification<T> getPredicate() {
         return predicate;
     }
 
-    public void setPredicate(PredicateSpecification predicate) {
+    public void setPredicate(PredicateSpecification<T> predicate) {
         this.predicate = predicate;
     }
 

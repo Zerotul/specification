@@ -1,6 +1,6 @@
 package org.zerotul.specification.restriction;
 
-import org.zerotul.specification.Recorder;
+import org.zerotul.specification.recorder.Recorder;
 
 import java.io.Serializable;
 import java.util.function.Function;
@@ -17,6 +17,8 @@ public class SimpleRestriction<T extends Serializable, R> implements Restriction
     private final R value;
 
     private final Operator operator;
+
+    private String propertyName;
 
     private Recorder<T> recorder;
 
@@ -38,11 +40,14 @@ public class SimpleRestriction<T extends Serializable, R> implements Restriction
 
     @Override
     public String getPropertyName() {
-        return recorder.getPropertyName(getter);
+        if(propertyName==null){
+            propertyName = recorder.getPropertyName(getter);
+        }
+        return propertyName;
     }
 
     @Override
-    public void setRecorder(Recorder recorder) {
+    public void setRecorder(Recorder<T> recorder) {
         this.recorder = recorder;
     }
 }

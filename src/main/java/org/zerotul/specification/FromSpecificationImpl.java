@@ -1,6 +1,11 @@
 package org.zerotul.specification;
 
 
+import org.zerotul.specification.order.OrderSpecification;
+import org.zerotul.specification.order.OrderSpecificationImpl;
+import org.zerotul.specification.recorder.EnhancerRecorder;
+import org.zerotul.specification.recorder.Recorder;
+
 import java.io.Serializable;
 
 /**
@@ -14,11 +19,13 @@ public class FromSpecificationImpl<T extends Serializable> implements FromSpecif
 
     private WhereSpecification<T> where;
 
+    private OrderSpecification<T> order;
+
     private final Recorder<T> recorder;
 
     public FromSpecificationImpl(Class<T> clazz) {
         this.clazz = clazz;
-        this.recorder = Recorder.create(clazz);
+        this.recorder = EnhancerRecorder.create(clazz);
     }
 
     @Override
@@ -26,6 +33,18 @@ public class FromSpecificationImpl<T extends Serializable> implements FromSpecif
         this.where = new WhereSpecificationImpl<>(this, recorder);
         return this.where;
     }
+
+    @Override
+    public OrderSpecification<T> order() {
+        this.order = new OrderSpecificationImpl<>(this, recorder);
+        return this.order;
+    }
+
+    @Override
+    public OrderSpecification<T> getOrder() {
+        return order;
+    }
+
 
     @Override
     public Class<T> getFromClass() {
@@ -36,6 +55,8 @@ public class FromSpecificationImpl<T extends Serializable> implements FromSpecif
     public WhereSpecification<T> getWhere() {
         return where;
     }
+
+
 
     @Override
     public Specification<T> endFrom() {

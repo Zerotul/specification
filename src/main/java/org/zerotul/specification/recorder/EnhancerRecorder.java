@@ -1,4 +1,4 @@
-package org.zerotul.specification;
+package org.zerotul.specification.recorder;
 
 import net.sf.cglib.proxy.Enhancer;
 import net.sf.cglib.proxy.MethodInterceptor;
@@ -16,7 +16,7 @@ import java.util.function.Function;
 /**
  * Created by zerotul on 12.03.15.
  */
-public class Recorder<T extends Serializable> implements Serializable{
+public class EnhancerRecorder<T extends Serializable> implements Recorder<T> {
 
     private static final long serialVersionUID = 5781727045810215034L;
 
@@ -26,30 +26,27 @@ public class Recorder<T extends Serializable> implements Serializable{
 
     private String currentPropertyName;
 
-    private Recorder(T object, Class<T> clazz) {
+    private EnhancerRecorder(T object, Class<T> clazz) {
         this.object = object;
         this.clazz = clazz;
     }
 
-    public T getObject() {
-        return object;
-    }
 
-    public static <T extends Serializable> Recorder<T> create(Class<T> clazz){
+    public static <T extends Serializable> EnhancerRecorder<T> create(Class<T> clazz){
         Enhancer enhancer = new Enhancer();
         enhancer.setSuperclass(clazz);
-        Interceptor<T> interceptor = new Interceptor(clazz);
+        Interceptor<T> interceptor = new Interceptor<>(clazz);
         enhancer.setCallback(interceptor);
-        Recorder<T> recorder = new Recorder<>((T) enhancer.create(), clazz);
+        EnhancerRecorder<T> recorder = new EnhancerRecorder<>((T) enhancer.create(), clazz);
         interceptor.setRecorder(recorder);
         return recorder;
     }
 
+    @Override
     public synchronized <R> String getPropertyName(Function<T, R> getter){
         try{
             getter.apply(object);
-            String propertyName = currentPropertyName;
-            return propertyName;
+            return currentPropertyName;
         }finally {
             this.currentPropertyName = null;
         }
@@ -59,7 +56,7 @@ public class Recorder<T extends Serializable> implements Serializable{
     private static class Interceptor<T extends Serializable>  implements MethodInterceptor {
         private final Map<String, String> propertyMap;
 
-        private Recorder<T> recorder;
+        private EnhancerRecorder<T> recorder;
 
         private final Class<T> clazz;
 
@@ -74,7 +71,7 @@ public class Recorder<T extends Serializable> implements Serializable{
             if(propertyName!=null) {
                 recorder.currentPropertyName =propertyName;
                 return methodProxy.invokeSuper(o, args);
-            };
+            }
 
             BeanInfo beanInfo = Introspector.getBeanInfo(this.clazz);
             PropertyDescriptor[] descriptors = beanInfo.getPropertyDescriptors();
@@ -90,7 +87,7 @@ public class Recorder<T extends Serializable> implements Serializable{
             return methodProxy.invokeSuper(o, args);
         }
 
-        protected void setRecorder(Recorder<T> recorder){
+        protected void setRecorder(EnhancerRecorder<T> recorder){
             this.recorder = recorder;
         }
     }

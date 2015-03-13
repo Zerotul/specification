@@ -1,15 +1,14 @@
 package org.zerotul.specification.restriction;
 
-import org.zerotul.specification.Recorder;
+import org.zerotul.specification.recorder.Recorder;
 
 import java.io.Serializable;
-import java.util.function.Function;
 
 /**
  * Created by zerotul on 12.03.15.
  */
 
-public interface Restriction<T, R> extends Serializable {
+public interface Restriction<T extends Serializable , R> extends Serializable {
 
     public Operator getOperator();
 
@@ -17,5 +16,5 @@ public interface Restriction<T, R> extends Serializable {
 
     public String getPropertyName();
 
-    public void setRecorder(Recorder recorder);
+    public void setRecorder(Recorder<T> recorder);
 }

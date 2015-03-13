@@ -1,4 +1,4 @@
-package org.zerotul.specification;
+package org.zerotul.specification.predicate;
 
 /**
  * Created by zerotul on 12.03.15.

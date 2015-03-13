@@ -1,7 +1,7 @@
 package org.zerotul.specification.test;
 
 import org.testng.annotations.Test;
-import org.zerotul.specification.PredicateOperation;
+import org.zerotul.specification.predicate.PredicateOperation;
 import org.zerotul.specification.exception.BuildException;
 import org.zerotul.specification.expression.Expression;
 import org.zerotul.specification.expression.SqlExpressionBuilder;
@@ -10,6 +10,8 @@ import org.zerotul.specification.test.mock.MockEntitySqlMapper;
 
 import static org.testng.Assert.assertEquals;
 import static org.zerotul.specification.Specifications.from;
+import static org.zerotul.specification.order.Orders.asc;
+import static org.zerotul.specification.order.Orders.desc;
 import static org.zerotul.specification.restriction.Restrictions.equal;
 import static org.zerotul.specification.restriction.Restrictions.like;
 import static org.zerotul.specification.restriction.Restrictions.notEqual;
@@ -41,6 +43,58 @@ public class SqlExpressionBuilderTest {
 
         resultSql = "select field_1, field_2, field_3, field_4 from mock_entity";
         expression = from(MockEntity.class).endFrom().isSatisfied(new SqlExpressionBuilder<>(new MockEntitySqlMapper()));
+        assertEquals(resultSql.toLowerCase().trim(), expression.toResult().toLowerCase().trim());
+    }
+
+    @Test
+    public void testOrderBuildExpression() throws BuildException {
+        String resultSql = "select field_1, field_2, field_3, field_4 from mock_entity " +
+                "where field_1 = 'value1' and " +
+                "field_2 <> 'value2' order by field_1 desc";
+        Expression<MockEntity, String> expression = from(MockEntity.class)
+                .where()
+                .restriction(equal(MockEntity::getField1, "value1"))
+                .predicate(PredicateOperation.AND)
+                .restriction(notEqual(MockEntity::getField2, "value2"))
+                .endWhere()
+                .order()
+                .order(desc(MockEntity::getField1))
+                .endFrom().isSatisfied(new SqlExpressionBuilder<>(new MockEntitySqlMapper()));
+
+        assertEquals(resultSql.toLowerCase().trim(), expression.toResult().toLowerCase().trim());
+
+        resultSql = "select field_1, field_2, field_3, field_4 from mock_entity " +
+                "where field_1 = 'value1' and " +
+                "field_2 <> 'value2' order by field_1 asc";
+
+        expression = from(MockEntity.class)
+                .where()
+                .restriction(equal(MockEntity::getField1, "value1"))
+                .predicate(PredicateOperation.AND)
+                .restriction(notEqual(MockEntity::getField2, "value2"))
+                .endWhere()
+                .order()
+                .order(asc(MockEntity::getField1))
+                .endFrom().isSatisfied(new SqlExpressionBuilder<>(new MockEntitySqlMapper()));
+
+        assertEquals(resultSql.toLowerCase().trim(), expression.toResult().toLowerCase().trim());
+
+        resultSql = "select field_1, field_2, field_3, field_4 from mock_entity order by field_1 desc";
+        expression = from(MockEntity.class)
+                .order().order(desc(MockEntity::getField1))
+                .endFrom().isSatisfied(new SqlExpressionBuilder<>(new MockEntitySqlMapper()));
+        assertEquals(resultSql.toLowerCase().trim(), expression.toResult().toLowerCase().trim());
+
+        resultSql = "select field_1, field_2, field_3, field_4 from mock_entity order by field_1 asc";
+        expression = from(MockEntity.class)
+                .order().order(asc(MockEntity::getField1))
+                .endFrom().isSatisfied(new SqlExpressionBuilder<>(new MockEntitySqlMapper()));
+        assertEquals(resultSql.toLowerCase().trim(), expression.toResult().toLowerCase().trim());
+
+        resultSql = "select field_1, field_2, field_3, field_4 from mock_entity order by field_1, field_2 asc";
+        expression = from(MockEntity.class)
+                .order().order(asc(MockEntity::getField1, MockEntity::getField2))
+                .endFrom().isSatisfied(new SqlExpressionBuilder<>(new MockEntitySqlMapper()));
         assertEquals(resultSql.toLowerCase().trim(), expression.toResult().toLowerCase().trim());
     }
 

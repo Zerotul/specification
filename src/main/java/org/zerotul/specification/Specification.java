@@ -9,7 +9,7 @@ import java.io.Serializable;
 /**
  * Created by zerotul on 11.03.15.
  */
-public interface Specification<T> extends Serializable{
+public interface Specification<T extends Serializable> extends Serializable{
 
     public <V> Expression<T, V> isSatisfied(ExpressionBuilder<T, V> expressionBuilder) throws BuildException;
 }
