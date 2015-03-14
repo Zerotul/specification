@@ -13,5 +13,7 @@ public interface Mapper {
 
     public Class getPropertyType(String propertyName);
 
+    public Object getIdValue(String propertyName, Object relation);
+
 
 }

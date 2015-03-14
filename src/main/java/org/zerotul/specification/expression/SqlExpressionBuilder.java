@@ -62,7 +62,7 @@ public class SqlExpressionBuilder<T extends Serializable> implements ExpressionB
         return builder.toString();
     }
 
-    private String whereClause(FromSpecification<T> specification){
+    private String whereClause(FromSpecification<T> specification) throws BuildException {
        WhereSpecification where =  specification.getWhere();
        if(where == null)return "";
 
@@ -77,10 +77,20 @@ public class SqlExpressionBuilder<T extends Serializable> implements ExpressionB
                 case LIKE: builder.append(" LIKE "); break;
                 case NOT_EQUAL: builder.append(" <> "); break;
             }
+
+            //TODO переделать на что более годное
             if(mapper.getPropertyType(restriction.getPropertyName()).equals(String.class)){
                 builder.append("'").append(restriction.getValue()).append("'");
-            }else{
+            }else if (Number.class.isAssignableFrom(mapper.getPropertyType(restriction.getPropertyName()))){
                 builder.append(restriction.getValue());
+            }else{
+                Object idValue =  mapper.getIdValue(restriction.getPropertyName(), restriction.getValue());
+                if(idValue==null)throw new BuildException("id value for "+restriction.getPropertyName()+"not found");
+                if(idValue.getClass().equals(String.class)){
+                    builder.append("'").append(idValue).append("'");
+                }else if (Number.class.isAssignableFrom(idValue.getClass())){
+                    builder.append(idValue);
+                }
             }
 
             if(!where.isLast()){

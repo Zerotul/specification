@@ -6,6 +6,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.Function;
 
 /**
  * Created by zerotul on 12.03.15.
@@ -14,13 +15,25 @@ public class MockEntitySqlMapper implements Mapper {
 
     private static final Map<String, Property> propertyMap;
 
+    private static final Map<String, Function> relationPropertyMap;
+
     static {
         Map<String, Property> propertyHashMap = new HashMap<>();
         propertyHashMap.put("field1", new Property("field_1", String.class, 1));
         propertyHashMap.put("field2", new Property("field_2", String.class, 2));
         propertyHashMap.put("field3", new Property("field_3", String.class, 3));
         propertyHashMap.put("field4", new Property("field_4", Integer.class, 4));
+        propertyHashMap.put("id", new Property("id", Integer.class, 5));
+        propertyHashMap.put("mock", new Property("mock_id", MockEntity.class, 6));
         propertyMap = Collections.unmodifiableMap(propertyHashMap);
+
+        HashMap<String, Function<? extends Object, ? extends Object>> rPropertyMap = new HashMap<>();
+        rPropertyMap.put("mock", (MockEntity mock)->mock.getId());
+        relationPropertyMap = Collections.unmodifiableMap(rPropertyMap);
+    }
+
+    {
+       HashMap<String, Function> propertyHashMap = new HashMap<>();
     }
 
     @Override
@@ -45,6 +58,12 @@ public class MockEntitySqlMapper implements Mapper {
         Property property = propertyMap.get(propertyName);
         return property!=null ? property.getType() : null;
     }
+
+    public Object getIdValue(String propertyName, Object relation){
+        Function function = relationPropertyMap.get(propertyName);
+        return function!=null ? function.apply(relation) : null;
+    }
+
 
 
     private static class Property {

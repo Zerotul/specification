@@ -7,10 +7,12 @@ import java.io.Serializable;
  */
 public class MockEntity implements Serializable{
 
+    private String id;
     private String field1;
     private String field2;
     private String field3;
     private int field4;
+    private MockEntity mock;
 
     public String getField1() {
         return field1;
@@ -42,5 +44,21 @@ public class MockEntity implements Serializable{
 
     public void setField4(int field4) {
         this.field4 = field4;
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    public MockEntity getMock() {
+        return mock;
+    }
+
+    public void setMock(MockEntity mock) {
+        this.mock = mock;
     }
 }
