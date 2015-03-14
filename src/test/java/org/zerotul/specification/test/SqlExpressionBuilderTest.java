@@ -57,7 +57,6 @@ public class SqlExpressionBuilderTest {
                 .predicate(PredicateOperation.AND)
                 .restriction(notEqual(MockEntity::getField2, "value2"))
                 .endWhere()
-                .order()
                 .order(desc(MockEntity::getField1))
                 .endFrom().isSatisfied(new SqlExpressionBuilder<>(new MockEntitySqlMapper()));
 
@@ -73,7 +72,6 @@ public class SqlExpressionBuilderTest {
                 .predicate(PredicateOperation.AND)
                 .restriction(notEqual(MockEntity::getField2, "value2"))
                 .endWhere()
-                .order()
                 .order(asc(MockEntity::getField1))
                 .endFrom().isSatisfied(new SqlExpressionBuilder<>(new MockEntitySqlMapper()));
 
@@ -81,19 +79,19 @@ public class SqlExpressionBuilderTest {
 
         resultSql = "select field_1, field_2, field_3, field_4 from mock_entity order by field_1 desc";
         expression = from(MockEntity.class)
-                .order().order(desc(MockEntity::getField1))
+                .order(desc(MockEntity::getField1))
                 .endFrom().isSatisfied(new SqlExpressionBuilder<>(new MockEntitySqlMapper()));
         assertEquals(resultSql.toLowerCase().trim(), expression.toResult().toLowerCase().trim());
 
         resultSql = "select field_1, field_2, field_3, field_4 from mock_entity order by field_1 asc";
         expression = from(MockEntity.class)
-                .order().order(asc(MockEntity::getField1))
+                .order(asc(MockEntity::getField1))
                 .endFrom().isSatisfied(new SqlExpressionBuilder<>(new MockEntitySqlMapper()));
         assertEquals(resultSql.toLowerCase().trim(), expression.toResult().toLowerCase().trim());
 
         resultSql = "select field_1, field_2, field_3, field_4 from mock_entity order by field_1, field_2 asc";
         expression = from(MockEntity.class)
-                .order().order(asc(MockEntity::getField1, MockEntity::getField2))
+                .order(asc(MockEntity::getField1, MockEntity::getField2))
                 .endFrom().isSatisfied(new SqlExpressionBuilder<>(new MockEntitySqlMapper()));
         assertEquals(resultSql.toLowerCase().trim(), expression.toResult().toLowerCase().trim());
     }

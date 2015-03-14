@@ -1,8 +1,7 @@
 package org.zerotul.specification;
 
 
-import org.zerotul.specification.order.OrderSpecification;
-import org.zerotul.specification.order.OrderSpecificationImpl;
+import org.zerotul.specification.order.Order;
 import org.zerotul.specification.recorder.EnhancerRecorder;
 import org.zerotul.specification.recorder.Recorder;
 
@@ -19,7 +18,7 @@ public class FromSpecificationImpl<T extends Serializable> implements FromSpecif
 
     private WhereSpecification<T> where;
 
-    private OrderSpecification<T> order;
+    private Order<T> order;
 
     private final Recorder<T> recorder;
 
@@ -36,14 +35,15 @@ public class FromSpecificationImpl<T extends Serializable> implements FromSpecif
     }
 
     @Override
-    public OrderSpecification<T> order() {
+    public FromSpecification<T> order(Order<T> order) {
         if (this.order!=null) throw new IllegalStateException("the order clause can not be changed");
-        this.order = new OrderSpecificationImpl<>(this, recorder);
-        return this.order;
+        this.order = order;
+        this.order.setRecorder(recorder);
+        return this;
     }
 
     @Override
-    public OrderSpecification<T> getOrder() {
+    public Order<T> getOrder() {
         return order;
     }
 

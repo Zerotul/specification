@@ -98,9 +98,9 @@ public class SqlExpressionBuilder<T extends Serializable> implements ExpressionB
     }
 
     private String orderClause(FromSpecification<T> from){
-        if(from.getOrder()==null || from.getOrder().getOrder()==null) return "";
+        if(from.getOrder()==null) return "";
 
-        Order<T> order = from.getOrder().getOrder();
+        Order<T> order = from.getOrder();
         StringBuilder builder = new StringBuilder(" ORDER BY ");
         List<String> propertyNames = order.getPropertyNames().stream()
                 .map(mapper::getMapPropertyName).collect(Collectors.toList());

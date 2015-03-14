@@ -1,6 +1,6 @@
 package org.zerotul.specification;
 
-import org.zerotul.specification.order.OrderSpecification;
+import org.zerotul.specification.order.Order;
 
 import java.io.Serializable;
 
@@ -11,9 +11,9 @@ public interface FromSpecification<T extends Serializable> extends Serializable 
 
     public WhereSpecification<T> where();
 
-    public OrderSpecification<T> order();
+    public FromSpecification<T> order(Order<T> order);
 
-    public OrderSpecification<T> getOrder();
+    public Order<T> getOrder();
 
     public Class<T> getFromClass();
 
