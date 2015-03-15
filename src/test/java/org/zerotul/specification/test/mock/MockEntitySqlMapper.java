@@ -5,16 +5,19 @@ import org.zerotul.specification.mapper.Mapper;
 import org.zerotul.specification.mapper.PropertyMap;
 import org.zerotul.specification.mapper.PropertyMapImpl;
 
+import java.io.Serializable;
+import java.sql.ResultSet;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.Function;
+import java.util.function.Supplier;
 
 /**
  * Created by zerotul on 12.03.15.
  */
-public class MockEntitySqlMapper extends AbstractMapper {
+public class MockEntitySqlMapper extends AbstractMapper<MockEntity> {
 
     @Override
     protected void init() {
@@ -28,8 +31,12 @@ public class MockEntitySqlMapper extends AbstractMapper {
     }
 
     @Override
+    protected Supplier<MockEntity> getEntityConsumer() {
+        return MockEntity::new;
+    }
+
+    @Override
     public String getMapName() {
         return "mock_entity";
     }
-
 }
