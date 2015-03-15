@@ -1,6 +1,9 @@
-package org.zerotul.specification.expression;
+package org.zerotul.specification.expression.sql;
 
 import org.zerotul.specification.FromSpecification;
+import org.zerotul.specification.expression.Expression;
+import org.zerotul.specification.expression.ExpressionBuilder;
+import org.zerotul.specification.mapper.PropertyMap;
 import org.zerotul.specification.order.Order;
 import org.zerotul.specification.predicate.PredicateOperation;
 import org.zerotul.specification.WhereSpecification;
@@ -21,21 +24,24 @@ import java.util.stream.Collectors;
 /**
  * Created by zerotul on 12.03.15.
  */
-public class SqlExpressionBuilder<T extends Serializable> implements ExpressionBuilder<T, String> {
+public class SqlExpressionBuilder<T extends Serializable> implements ExpressionBuilder<T, Query> {
 
     private final Mapper mapper;
 
+    private final List params;
+
     public SqlExpressionBuilder(Mapper mapper) {
         this.mapper = mapper;
+        this.params = new ArrayList<>();
     }
 
     @Override
-    public Expression<T, String> buildExpression(FromSpecification<T> specification) throws BuildException {
+    public Expression<T, Query> buildExpression(FromSpecification<T> specification) throws BuildException {
         try {
             StringBuilder builder = new StringBuilder(fromClause(specification))
             .append(whereClause(specification))
             .append(orderClause(specification));
-            return new SqlExpression<>(builder.toString());
+            return new SqlExpression<>(new Query(builder.toString(), params));
         } catch (IntrospectionException e) {
            throw new BuildException(e);
         }
@@ -45,14 +51,11 @@ public class SqlExpressionBuilder<T extends Serializable> implements ExpressionB
         StringBuilder builder = new StringBuilder("SELECT ");
         BeanInfo fromInfo = Introspector.getBeanInfo(specification.getFromClass());
         List<PropertyDescriptor> descriptors = Arrays.asList(fromInfo.getPropertyDescriptors());
-        Collections.sort(descriptors,(PropertyDescriptor property1, PropertyDescriptor property2)->{
-           return Integer.valueOf(mapper.getPropertyIndex(property1.getName())).compareTo(mapper.getPropertyIndex(property1.getName()));
-        });
         List<String> propertyNames = new ArrayList<>();
         for(PropertyDescriptor descriptor : descriptors){
-            String propertyName = mapper.getMapPropertyName(descriptor.getName());
-            if(propertyName!=null) {
-                propertyNames.add(propertyName);
+            PropertyMap property = mapper.getPropertyMap(descriptor.getName());
+            if(property!=null) {
+                propertyNames.add(property.getPropertyMapName());
             }
         }
 
@@ -69,29 +72,22 @@ public class SqlExpressionBuilder<T extends Serializable> implements ExpressionB
         StringBuilder builder = new StringBuilder(" WHERE ");
         do {
             Restriction restriction = where.getRestriction();
-            Optional<String> optional = Optional.of(mapper.getMapPropertyName(restriction.getPropertyName()));
-            builder.append(optional .get());
+            Optional<PropertyMap> optional = Optional.of(mapper.getPropertyMap(restriction.getPropertyName()));
+            builder.append(optional.get().getPropertyMapName());
             Operator operator = restriction.getOperator();
             switch (operator){
                 case EQUAL: builder.append(" = "); break;
                 case LIKE: builder.append(" LIKE "); break;
                 case NOT_EQUAL: builder.append(" <> "); break;
             }
-
-            //TODO переделать на что более годное
-            if(mapper.getPropertyType(restriction.getPropertyName()).equals(String.class)){
-                builder.append("'").append(restriction.getValue()).append("'");
-            }else if (Number.class.isAssignableFrom(mapper.getPropertyType(restriction.getPropertyName()))){
-                builder.append(restriction.getValue());
+            builder.append("?");
+            Object value;
+            if(optional.get().isRelation()){
+                value = mapper.convertRelationValue(optional.get(), restriction.getValue());
             }else{
-                Object idValue =  mapper.getIdValue(restriction.getPropertyName(), restriction.getValue());
-                if(idValue==null)throw new BuildException("id value for "+restriction.getPropertyName()+"not found");
-                if(idValue.getClass().equals(String.class)){
-                    builder.append("'").append(idValue).append("'");
-                }else if (Number.class.isAssignableFrom(idValue.getClass())){
-                    builder.append(idValue);
-                }
+                value = restriction.getValue();
             }
+            params.add(value);
 
             if(!where.isLast()){
                 PredicateOperation operation = where.getPredicate().getOperation();
@@ -113,7 +109,11 @@ public class SqlExpressionBuilder<T extends Serializable> implements ExpressionB
         Order<T> order = from.getOrder();
         StringBuilder builder = new StringBuilder(" ORDER BY ");
         List<String> propertyNames = order.getPropertyNames().stream()
-                .map(mapper::getMapPropertyName).collect(Collectors.toList());
+                .map((String propertyName) -> {
+                    PropertyMap property = mapper.getPropertyMap(propertyName);
+                    if(property==null) throw new IllegalArgumentException("property not found, propertyName="+propertyName);
+                    return property.getPropertyMapName();
+                }).collect(Collectors.toList());
         builder.append(String.join(", ", propertyNames));
         builder.append(" ").append(order.getOrderType().toString());
         return builder.toString();

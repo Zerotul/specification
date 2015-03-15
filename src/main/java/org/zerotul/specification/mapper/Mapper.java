@@ -5,15 +5,9 @@ package org.zerotul.specification.mapper;
  */
 public interface Mapper {
 
-    public String getMapPropertyName(String propertyName);
-
-    public int getPropertyIndex(String propertyName);
+    public PropertyMap getPropertyMap(String propertyName);
 
     public String getMapName();
 
-    public Class getPropertyType(String propertyName);
-
-    public Object getIdValue(String propertyName, Object relation);
-
-
+    public Object convertRelationValue(PropertyMap propertyMap, Object value);
 }
