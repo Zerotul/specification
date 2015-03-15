@@ -2,7 +2,6 @@ package org.zerotul.specification.test;
 
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.runners.MockitoJUnitRunner;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 import org.zerotul.specification.expression.sql.Query;
@@ -10,8 +9,6 @@ import org.zerotul.specification.predicate.PredicateOperation;
 import org.zerotul.specification.exception.BuildException;
 import org.zerotul.specification.expression.Expression;
 import org.zerotul.specification.expression.sql.SqlExpressionBuilder;
-import org.zerotul.specification.restriction.Operator;
-import org.zerotul.specification.restriction.SimpleRestriction;
 import org.zerotul.specification.test.mock.MockEntity;
 import org.zerotul.specification.test.mock.MockEntitySqlMapper;
 
@@ -20,9 +17,6 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 import static org.testng.Assert.assertEquals;
 import static org.zerotul.specification.Specifications.from;
