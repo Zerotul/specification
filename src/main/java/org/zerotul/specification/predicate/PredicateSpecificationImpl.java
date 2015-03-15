@@ -55,4 +55,24 @@ public class PredicateSpecificationImpl<T extends Serializable> implements Predi
     public WhereSpecification<T> getAfterWhere() {
         return afterWhere;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        PredicateSpecificationImpl that = (PredicateSpecificationImpl) o;
+
+        if (afterWhere != null ? !afterWhere.equals(that.afterWhere) : that.afterWhere != null) return false;
+        if (operation != that.operation) return false;
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = afterWhere != null ? afterWhere.hashCode() : 0;
+        result = 31 * result + (operation != null ? operation.hashCode() : 0);
+        return result;
+    }
 }

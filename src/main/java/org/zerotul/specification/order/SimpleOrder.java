@@ -4,6 +4,7 @@ import org.zerotul.specification.recorder.Recorder;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.function.Function;
 
@@ -48,5 +49,25 @@ public class SimpleOrder<T extends Serializable> implements Order<T> {
     @Override
     public void setRecorder(Recorder<T> recorder) {
          this.recorder = recorder;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        SimpleOrder that = (SimpleOrder) o;
+
+        if (!Arrays.equals(getters, that.getters)) return false;
+        if (orderType != that.orderType) return false;
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = orderType != null ? orderType.hashCode() : 0;
+        result = 31 * result + (getters != null ? Arrays.hashCode(getters) : 0);
+        return result;
     }
 }

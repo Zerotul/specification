@@ -28,4 +28,21 @@ public class SpecificationImpl<T extends Serializable> implements Specification<
     public Class<T> getResultClass() {
         return from.getFromClass();
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        SpecificationImpl that = (SpecificationImpl) o;
+
+        if (from != null ? !from.equals(that.from) : that.from != null) return false;
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        return from != null ? from.hashCode() : 0;
+    }
 }

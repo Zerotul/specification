@@ -58,4 +58,24 @@ public class WhereSpecificationImpl<T extends Serializable> implements WhereSpec
     public boolean isLast() {
         return predicate==null;
     }
+
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        WhereSpecificationImpl that = (WhereSpecificationImpl) o;
+        if (predicate != null ? !predicate.equals(that.predicate) : that.predicate != null) return false;
+        if (restriction != null ? !restriction.equals(that.restriction) : that.restriction != null) return false;
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = restriction != null ? restriction.hashCode() : 0;
+        result = 31 * result + (predicate != null ? predicate.hashCode() : 0);
+        return result;
+    }
 }

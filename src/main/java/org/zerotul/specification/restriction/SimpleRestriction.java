@@ -50,4 +50,26 @@ public class SimpleRestriction<T extends Serializable, R> implements Restriction
     public void setRecorder(Recorder<T> recorder) {
         this.recorder = recorder;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        SimpleRestriction that = (SimpleRestriction) o;
+
+        if (operator != that.operator) return false;
+        if (propertyName != null ? !propertyName.equals(that.propertyName) : that.propertyName != null) return false;
+        if (value != null ? !value.equals(that.value) : that.value != null) return false;
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = value != null ? value.hashCode() : 0;
+        result = 31 * result + (operator != null ? operator.hashCode() : 0);
+        result = 31 * result + (propertyName != null ? propertyName.hashCode() : 0);
+        return result;
+    }
 }
