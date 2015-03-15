@@ -19,7 +19,7 @@ public abstract class AbstractMapper<T extends Serializable> implements Mapper<T
 
     private Map<PropertyMap, Function> relationPropertyMap;
 
-    private Map<PropertyMap, BiConsumer> setters;
+    private  Map<PropertyMap, Setter> setters;
 
 
     public AbstractMapper() {
@@ -36,12 +36,12 @@ public abstract class AbstractMapper<T extends Serializable> implements Mapper<T
 
     }
 
-    protected void addProperty(PropertyMap property, BiConsumer setter) {
+    protected <U> void addProperty(PropertyMap property, BiConsumer<T, U> setter) {
         if (property.isRelation())
             throw new IllegalArgumentException("if the property isRelation = true, use method addRelation");
         this.propertyMap.put(property.getPropertyName(), property);
         if (setter != null) {
-            setters.put(property, setter);
+            setters.put(property, new Setter(setter));
         }
     }
 
@@ -49,13 +49,13 @@ public abstract class AbstractMapper<T extends Serializable> implements Mapper<T
         addProperty(property, null);
     }
 
-    protected void addRelation(PropertyMap property, Function<? extends Object, ? extends Object> function, BiConsumer setter) {
+    protected void addRelation(PropertyMap property, Function<? extends Object, ? extends Object> function, BiConsumer<T, Object> setter) {
         if (!property.isRelation())
             throw new IllegalArgumentException("if the property isRelation = false, use method addProperty");
         propertyMap.put(property.getPropertyName(), property);
         relationPropertyMap.put(property, function);
         if (setter != null) {
-            setters.put(property, setter);
+            setters.put(property, new Setter(setter));
         }
     }
 
@@ -82,12 +82,24 @@ public abstract class AbstractMapper<T extends Serializable> implements Mapper<T
     public T convertToEntity(ResultSet rs, int rowIndex) {
         try {
             T entity = getEntityConsumer().get();
-            for (Map.Entry<PropertyMap, BiConsumer> entry : setters.entrySet()) {
+            for (Map.Entry<PropertyMap, Setter> entry : setters.entrySet()) {
                 entry.getValue().accept(entity, rs.getObject(entry.getKey().getPropertyMapName()));
             }
             return entity;
         } catch (SQLException e) {
             throw new RuntimeException(e);
+        }
+    }
+
+    private static class Setter<T, U>{
+        private final BiConsumer<T, U> setter;
+
+        private Setter(BiConsumer<T, U> setter) {
+            this.setter = setter;
+        }
+
+        public void accept(T obj, U value){
+            setter.accept(obj, value);
         }
     }
 
