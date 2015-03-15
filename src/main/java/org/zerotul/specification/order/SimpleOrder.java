@@ -3,9 +3,7 @@ package org.zerotul.specification.order;
 import org.zerotul.specification.recorder.Recorder;
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 import java.util.function.Function;
 
 /**
@@ -39,6 +37,7 @@ public class SimpleOrder<T extends Serializable> implements Order<T> {
 
     @Override
     public List<String> getPropertyNames() {
+        if(recorder==null) return Collections.EMPTY_LIST;
         List<String> propertyNames = new ArrayList<>();
         for(Function getter : getters){
             propertyNames.add(recorder.getPropertyName(getter));
@@ -58,7 +57,7 @@ public class SimpleOrder<T extends Serializable> implements Order<T> {
 
         SimpleOrder that = (SimpleOrder) o;
 
-        if (!Arrays.equals(getters, that.getters)) return false;
+        if(getPropertyNames()!=null ? !getPropertyNames().equals(getPropertyNames()) : that.getPropertyNames()!=null) return false;
         if (orderType != that.orderType) return false;
 
         return true;
@@ -66,8 +65,6 @@ public class SimpleOrder<T extends Serializable> implements Order<T> {
 
     @Override
     public int hashCode() {
-        int result = orderType != null ? orderType.hashCode() : 0;
-        result = 31 * result + (getters != null ? Arrays.hashCode(getters) : 0);
-        return result;
+        return orderType != null ? orderType.hashCode() : 0;
     }
 }

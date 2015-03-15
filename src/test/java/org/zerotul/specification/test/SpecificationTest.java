@@ -8,6 +8,7 @@ import org.zerotul.specification.test.mock.MockEntity;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertTrue;
 import static org.zerotul.specification.Specifications.from;
+import static org.zerotul.specification.order.Orders.desc;
 import static org.zerotul.specification.restriction.Restrictions.equal;
 import static org.zerotul.specification.restriction.Restrictions.like;
 import static org.zerotul.specification.restriction.Restrictions.notEqual;
@@ -33,7 +34,7 @@ public class SpecificationTest {
                 .restriction(equal(MockEntity::getField4, 0))
                 .predicate(PredicateOperation.AND)
                 .restriction(equal(MockEntity::getMock, mockEntity))
-                .endWhere().endFrom();
+                .endWhere().order(desc(MockEntity::getField2)).endFrom();
 
         Specification<MockEntity> specification2 = from(MockEntity.class)
                 .where()
@@ -46,7 +47,7 @@ public class SpecificationTest {
                 .restriction(equal(MockEntity::getField4, 0))
                 .predicate(PredicateOperation.AND)
                 .restriction(equal(MockEntity::getMock, mockEntity))
-                .endWhere().endFrom();
+                .endWhere().order(desc(MockEntity::getField2)).endFrom();
 
         assertEquals(specification1, specification2);
     }
@@ -67,7 +68,7 @@ public class SpecificationTest {
                 .restriction(equal(MockEntity::getField4, 0))
                 .predicate(PredicateOperation.AND)
                 .restriction(equal(MockEntity::getMock, mockEntity))
-                .endWhere().endFrom();
+                .endWhere().order(desc(MockEntity::getField2)).endFrom();
 
         Specification<MockEntity> specification2 = from(MockEntity.class)
                 .where()
@@ -80,7 +81,7 @@ public class SpecificationTest {
                 .restriction(equal(MockEntity::getField4, 0))
                 .predicate(PredicateOperation.AND)
                 .restriction(equal(MockEntity::getMock, mockEntity))
-                .endWhere().endFrom();
+                .endWhere().order(desc(MockEntity::getField2)).endFrom();
 
         assertTrue(specification1.hashCode() == specification2.hashCode());
     }
