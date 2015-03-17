@@ -1,5 +1,8 @@
 package org.zerotul.specification.mapper;
 
+import org.zerotul.specification.recorder.EnhancerRecorder;
+import org.zerotul.specification.recorder.Recorder;
+
 import java.io.Serializable;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -21,11 +24,14 @@ public abstract class AbstractMapper<T extends Serializable> implements Mapper<T
 
     private  Map<PropertyMap, Setter> setters;
 
+    private Recorder<T> recorder;
 
-    public AbstractMapper() {
+
+    public AbstractMapper(Class<T> clazz) {
         propertyMap = new HashMap<>();
         relationPropertyMap = new HashMap<>();
         setters = new HashMap<>();
+        this.recorder = EnhancerRecorder.create(clazz);
         init();
         propertyMap = Collections.unmodifiableMap(propertyMap);
         relationPropertyMap = Collections.unmodifiableMap(relationPropertyMap);
@@ -36,22 +42,20 @@ public abstract class AbstractMapper<T extends Serializable> implements Mapper<T
 
     }
 
-    protected <U> void addProperty(PropertyMap property, BiConsumer<T, U> setter) {
-        if (property.isRelation())
-            throw new IllegalArgumentException("if the property isRelation = true, use method addRelation");
+    protected <U> void addProperty(Function<T, U> getter, String mapName, BiConsumer<T, U> setter) {
+        PropertyMap property = new PropertyMapImpl(recorder.getPropertyName(getter), mapName, recorder.getPropertyType(getter), false);
         this.propertyMap.put(property.getPropertyName(), property);
         if (setter != null) {
             setters.put(property, new Setter(setter));
         }
     }
 
-    protected void addProperty(PropertyMap property) {
-        addProperty(property, null);
+    protected <U> void addProperty(Function<T, U> getter, String mapName) {
+        addProperty(getter, mapName, null);
     }
 
-    protected void addRelation(PropertyMap property, Function<? extends Object, ? extends Object> function, BiConsumer<T, Object> setter) {
-        if (!property.isRelation())
-            throw new IllegalArgumentException("if the property isRelation = false, use method addProperty");
+    protected <U> void addRelation(Function<T, U> getter, String mapName, Function<T, ?> function, BiConsumer<T, ?> setter) {
+        PropertyMap property = new PropertyMapImpl(recorder.getPropertyName(getter), mapName, recorder.getPropertyType(getter), true);
         propertyMap.put(property.getPropertyName(), property);
         relationPropertyMap.put(property, function);
         if (setter != null) {
@@ -59,8 +63,8 @@ public abstract class AbstractMapper<T extends Serializable> implements Mapper<T
         }
     }
 
-    protected void addRelation(PropertyMap property, Function<? extends Object, ? extends Object> function) {
-        addRelation(property, function, null);
+    protected <U> void addRelation(Function<T, U> getter, String mapName,Function<T, ?> function) {
+        addRelation(getter, mapName, function, null);
     }
 
     @Override

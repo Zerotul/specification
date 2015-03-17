@@ -19,15 +19,19 @@ import java.util.function.Supplier;
  */
 public class MockEntitySqlMapper extends AbstractMapper<MockEntity> {
 
+    public MockEntitySqlMapper(Class<MockEntity> clazz) {
+        super(clazz);
+    }
+
     @Override
     protected void init() {
         super.init();
-        addProperty(new PropertyMapImpl("field1", "field_1", String.class, false));
-        addProperty(new PropertyMapImpl("field2", "field_2", String.class, false));
-        addProperty(new PropertyMapImpl("field3", "field_3", String.class, false));
-        addProperty(new PropertyMapImpl("field4", "field_4", Integer.class, false));
-        addProperty(new PropertyMapImpl("id", "id", Integer.class, false));
-        addRelation(new PropertyMapImpl("mock", "mock_id", MockEntity.class, true), (MockEntity mock)->mock.getId());
+        addProperty(MockEntity::getField1, "field_1");
+        addProperty(MockEntity::getField2, "field_2");
+        addProperty(MockEntity::getField3, "field_3");
+        addProperty(MockEntity::getField4, "field_4");
+        addProperty(MockEntity::getId, "id");
+        addRelation(MockEntity::getMock, "mock_id", (MockEntity mock) -> mock.getId());
     }
 
     @Override

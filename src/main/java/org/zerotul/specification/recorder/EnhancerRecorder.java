@@ -26,6 +26,8 @@ public class EnhancerRecorder<T extends Serializable> implements Recorder<T> {
 
     private String currentPropertyName;
 
+    private Class currentPropertyType;
+
     private EnhancerRecorder(T object, Class<T> clazz) {
         this.object = object;
         this.clazz = clazz;
@@ -49,6 +51,18 @@ public class EnhancerRecorder<T extends Serializable> implements Recorder<T> {
             return currentPropertyName;
         }finally {
             this.currentPropertyName = null;
+            this.currentPropertyType = null;
+        }
+    }
+
+    @Override
+    public synchronized  <R> Class<R> getPropertyType(Function<T, R> getter) {
+        try{
+            getter.apply(object);
+            return currentPropertyType;
+        }finally {
+            this.currentPropertyType = null;
+            this.currentPropertyName = null;
         }
     }
 
@@ -66,10 +80,11 @@ public class EnhancerRecorder<T extends Serializable> implements Recorder<T> {
         }
 
         @Override
-        public Object intercept(Object o, Method method, Object[] args, MethodProxy methodProxy) throws Throwable {
+        public synchronized Object intercept(Object o, Method method, Object[] args, MethodProxy methodProxy) throws Throwable {
             String propertyName = this.propertyMap.get(method.getName());
             if(propertyName!=null) {
                 recorder.currentPropertyName =propertyName;
+                recorder.currentPropertyType = method.getReturnType();
                 return methodProxy.invokeSuper(o, args);
             }
 
@@ -84,6 +99,7 @@ public class EnhancerRecorder<T extends Serializable> implements Recorder<T> {
             }
             if (propertyName==null) throw new IllegalStateException("property for a method "+method.getName()+" in a class "+this.clazz+" not found");
             recorder.currentPropertyName = propertyName;
+            recorder.currentPropertyType = method.getReturnType();
             return methodProxy.invokeSuper(o, args);
         }
 
