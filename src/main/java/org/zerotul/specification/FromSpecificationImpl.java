@@ -99,6 +99,8 @@ public class FromSpecificationImpl<T extends Serializable> implements FromSpecif
         if (clazz != null ? !clazz.equals(that.clazz) : that.clazz != null) return false;
         if (order != null ? !order.equals(that.order) : that.order != null) return false;
         if (where != null ? !where.equals(that.where) : that.where != null) return false;
+        if (max != that.max) return false;
+        if (offset != that.offset) return false;
 
         return true;
     }
