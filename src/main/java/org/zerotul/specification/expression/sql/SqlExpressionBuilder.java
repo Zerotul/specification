@@ -46,7 +46,7 @@ public class SqlExpressionBuilder<T extends Serializable> implements ExpressionB
                     .append(whereClause)
                     .append(orderClause)
                     .append(pagingClause);
-            String rowCountQuery = new StringBuilder("SELECT count(*) ")
+            String rowCountQuery = new StringBuilder("SELECT count(*) FROM ")
                     .append(mapper.getMapName()).append(" ").append(whereClause).toString();
             return new SqlExpression<>(new Query(builder.toString(), params, rowCountQuery));
         } catch (IntrospectionException e) {
