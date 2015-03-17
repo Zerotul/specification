@@ -138,7 +138,7 @@ public class SqlExpressionBuilder<T extends Serializable> implements ExpressionB
     }
 
     private String pagingClause(FromSpecification<T> from) {
-        if (from.getMax() > 0 && from.getOffset() > 0) {
+        if (from.getMax() > 0) {
             StringBuilder builder = new StringBuilder(" LIMIT ")
                     .append(from.getMax()).append(" OFFSET ").append(from.getOffset());
             return builder.toString();

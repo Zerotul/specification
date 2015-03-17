@@ -22,7 +22,7 @@ public class FromSpecificationImpl<T extends Serializable> implements FromSpecif
 
     private int max;
 
-    private int offset;
+    private int offset = 0;
 
     private final Recorder<T> recorder;
 
