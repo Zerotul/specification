@@ -54,7 +54,7 @@ public abstract class AbstractMapper<T extends Serializable> implements Mapper<T
         addProperty(getter, mapName, null);
     }
 
-    protected <U> void addRelation(Function<T, U> getter, String mapName, Function<T, ?> function, BiConsumer<T, ?> setter) {
+    protected <U> void addRelation(Function<T, U> getter, String mapName, Function<T, ?> function, BiConsumer<T, U> setter) {
         PropertyMap property = new PropertyMapImpl(recorder.getPropertyName(getter), mapName, recorder.getPropertyType(getter), true);
         propertyMap.put(property.getPropertyName(), property);
         relationPropertyMap.put(property, function);
