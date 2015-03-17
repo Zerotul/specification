@@ -20,6 +20,10 @@ public class FromSpecificationImpl<T extends Serializable> implements FromSpecif
 
     private Order<T> order;
 
+    private int max;
+
+    private int offset;
+
     private final Recorder<T> recorder;
 
     public FromSpecificationImpl(Class<T> clazz) {
@@ -61,6 +65,28 @@ public class FromSpecificationImpl<T extends Serializable> implements FromSpecif
     @Override
     public Specification<T> endFrom() {
         return new SpecificationImpl<>(this);
+    }
+
+    @Override
+    public FromSpecification<T> max(int max) {
+        this.max = max;
+        return this;
+    }
+
+    @Override
+    public FromSpecification<T> offset(int offset) {
+        this.offset = offset;
+        return this;
+    }
+
+    @Override
+    public int getMax() {
+        return max;
+    }
+
+    @Override
+    public int getOffset() {
+        return offset;
     }
 
     @Override

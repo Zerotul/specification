@@ -55,7 +55,7 @@ public class SqlExpressionBuilderTest {
                 " where field_1 = ? and " +
                 "field_2 <> ? or " +
                 "field_3 like ? and " +
-                "field_4 = ?";
+                "field_4 = ? LIMIT 4 OFFSET 2";
         Expression<MockEntity, Query> expression = from(MockEntity.class)
                 .where()
                  .restriction(equal(MockEntity::getField1, "value1"))
@@ -65,7 +65,7 @@ public class SqlExpressionBuilderTest {
                  .restriction(like(MockEntity::getField3, "%value3%"))
                 .predicate(PredicateOperation.AND)
                  .restriction(equal(MockEntity::getField4, 0))
-                .endWhere().endFrom().isSatisfied(new SqlExpressionBuilder<>(new MockEntitySqlMapper(MockEntity.class)));
+                .endWhere().max(4).offset(2).endFrom().isSatisfied(new SqlExpressionBuilder<>(new MockEntitySqlMapper(MockEntity.class)));
 
         Query query = expression.toResult();
         assertEquals(resultSql.toLowerCase().trim(), query.getQuery().toLowerCase().trim());

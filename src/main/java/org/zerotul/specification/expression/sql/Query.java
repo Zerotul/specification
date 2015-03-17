@@ -11,9 +11,12 @@ public class Query {
 
     private final List params;
 
-    public Query(String query, List params) {
+    private final String rowCountQuery;
+
+    public Query(String query, List params, String rowCountQuery) {
         this.query = query;
         this.params = params;
+        this.rowCountQuery = rowCountQuery;
     }
 
     public String getQuery() {
@@ -22,5 +25,9 @@ public class Query {
 
     public List getParams() {
         return params;
+    }
+
+    public String getRowCountQuery() {
+        return rowCountQuery;
     }
 }

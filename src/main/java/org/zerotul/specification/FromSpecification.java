@@ -20,4 +20,12 @@ public interface FromSpecification<T extends Serializable> extends Serializable 
     public WhereSpecification<T> getWhere();
 
     public Specification<T> endFrom();
+
+    public FromSpecification<T> max(int max);
+
+    public FromSpecification<T> offset(int offset);
+
+    public int getMax();
+
+    public int getOffset();
 }

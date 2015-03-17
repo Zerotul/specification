@@ -38,12 +38,19 @@ public class SqlExpressionBuilder<T extends Serializable> implements ExpressionB
     @Override
     public Expression<T, Query> buildExpression(FromSpecification<T> specification) throws BuildException {
         try {
-            StringBuilder builder = new StringBuilder(fromClause(specification))
-            .append(whereClause(specification))
-            .append(orderClause(specification));
-            return new SqlExpression<>(new Query(builder.toString(), params));
+            String fromClause = fromClause(specification);
+            String whereClause = whereClause(specification);
+            String orderClause = orderClause(specification);
+            String pagingClause = pagingClause(specification);
+            StringBuilder builder = new StringBuilder(fromClause)
+                    .append(whereClause)
+                    .append(orderClause)
+                    .append(pagingClause);
+            String rowCountQuery = new StringBuilder("SELECT count(*) ")
+                    .append(mapper.getMapName()).append(" ").append(whereClause).toString();
+            return new SqlExpression<>(new Query(builder.toString(), params, rowCountQuery));
         } catch (IntrospectionException e) {
-           throw new BuildException(e);
+            throw new BuildException(e);
         }
     }
 
@@ -52,9 +59,9 @@ public class SqlExpressionBuilder<T extends Serializable> implements ExpressionB
         BeanInfo fromInfo = Introspector.getBeanInfo(specification.getFromClass());
         List<PropertyDescriptor> descriptors = Arrays.asList(fromInfo.getPropertyDescriptors());
         List<String> propertyNames = new ArrayList<>();
-        for(PropertyDescriptor descriptor : descriptors){
+        for (PropertyDescriptor descriptor : descriptors) {
             PropertyMap property = mapper.getPropertyMap(descriptor.getName());
-            if(property!=null) {
+            if (property != null) {
                 propertyNames.add(property.getPropertyMapName());
             }
         }
@@ -66,8 +73,8 @@ public class SqlExpressionBuilder<T extends Serializable> implements ExpressionB
     }
 
     private String whereClause(FromSpecification<T> specification) throws BuildException {
-       WhereSpecification where =  specification.getWhere();
-       if(where == null)return "";
+        WhereSpecification where = specification.getWhere();
+        if (where == null) return "";
 
         StringBuilder builder = new StringBuilder(" WHERE ");
         do {
@@ -75,47 +82,68 @@ public class SqlExpressionBuilder<T extends Serializable> implements ExpressionB
             Optional<PropertyMap> optional = Optional.of(mapper.getPropertyMap(restriction.getPropertyName()));
             builder.append(optional.get().getPropertyMapName());
             Operator operator = restriction.getOperator();
-            switch (operator){
-                case EQUAL: builder.append(" = "); break;
-                case LIKE: builder.append(" LIKE "); break;
-                case NOT_EQUAL: builder.append(" <> "); break;
+            switch (operator) {
+                case EQUAL:
+                    builder.append(" = ");
+                    break;
+                case LIKE:
+                    builder.append(" LIKE ");
+                    break;
+                case NOT_EQUAL:
+                    builder.append(" <> ");
+                    break;
             }
             builder.append("?");
             Object value;
-            if(optional.get().isRelation()){
+            if (optional.get().isRelation()) {
                 value = mapper.convertRelationValue(optional.get(), restriction.getValue());
-            }else{
+            } else {
                 value = restriction.getValue();
             }
             params.add(value);
 
-            if(!where.isLast()){
+            if (!where.isLast()) {
                 PredicateOperation operation = where.getPredicate().getOperation();
-                switch (operation){
-                    case AND: builder.append(" AND ");break;
-                    case OR: builder.append(" OR ");break;
+                switch (operation) {
+                    case AND:
+                        builder.append(" AND ");
+                        break;
+                    case OR:
+                        builder.append(" OR ");
+                        break;
                 }
                 where = where.getPredicate().getAfterWhere();
-            }else{
+            } else {
                 where = null;
             }
-        }while (where!=null);
+        } while (where != null);
         return builder.toString();
     }
 
-    private String orderClause(FromSpecification<T> from){
-        if(from.getOrder()==null) return "";
+    private String orderClause(FromSpecification<T> from) {
+        if (from.getOrder() == null) return "";
 
         Order<T> order = from.getOrder();
         StringBuilder builder = new StringBuilder(" ORDER BY ");
         List<String> propertyNames = order.getPropertyNames().stream()
                 .map((String propertyName) -> {
                     PropertyMap property = mapper.getPropertyMap(propertyName);
-                    if(property==null) throw new IllegalArgumentException("property not found, propertyName="+propertyName);
+                    if (property == null)
+                        throw new IllegalArgumentException("property not found, propertyName=" + propertyName);
                     return property.getPropertyMapName();
                 }).collect(Collectors.toList());
         builder.append(String.join(", ", propertyNames));
         builder.append(" ").append(order.getOrderType().toString());
         return builder.toString();
+    }
+
+    private String pagingClause(FromSpecification<T> from) {
+        if (from.getMax() > 0 && from.getOffset() > 0) {
+            StringBuilder builder = new StringBuilder(" LIMIT ")
+                    .append(from.getMax()).append(" OFFSET ").append(from.getOffset());
+            return builder.toString();
+        }
+
+        return "";
     }
 }
