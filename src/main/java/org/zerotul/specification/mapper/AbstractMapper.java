@@ -90,7 +90,7 @@ public abstract class AbstractMapper<T extends Serializable> implements Mapper<T
                 String columnName = entry.getKey().getPropertyMapName();
                 int index =columnName.indexOf(".");
                 if(index>-1){
-                    columnName = columnName.substring(index, columnName.length());
+                    columnName = columnName.substring(index+1, columnName.length());
                 }
                 entry.getValue().accept(entity, rs.getObject(columnName));
             }
