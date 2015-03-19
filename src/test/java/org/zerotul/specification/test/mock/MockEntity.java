@@ -5,7 +5,7 @@ import java.io.Serializable;
 /**
  * Created by zerotul on 12.03.15.
  */
-public class MockEntity implements Serializable{
+public class MockEntity implements Mock, Serializable{
 
     private String id;
     private String field1;

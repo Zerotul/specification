@@ -80,12 +80,12 @@ public abstract class AbstractMapper<T extends Serializable> implements Mapper<T
         return function != null ? function.apply(value) : null;
     }
 
-    protected abstract Supplier<T> getEntityConsumer();
+    protected abstract T getNewRecord();
 
     @Override
     public T convertToEntity(ResultSet rs, int rowIndex) {
         try {
-            T entity = getEntityConsumer().get();
+            T entity = getNewRecord();
             for (Map.Entry<PropertyMap, Setter> entry : setters.entrySet()) {
                 entry.getValue().accept(entity, rs.getObject(entry.getKey().getPropertyMapName()));
             }
