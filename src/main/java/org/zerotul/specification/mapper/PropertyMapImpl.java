@@ -1,6 +1,7 @@
 package org.zerotul.specification.mapper;
 
 import java.io.Serializable;
+import java.util.Objects;
 
 /**
  * Created by zerotul on 15.03.15.
@@ -18,6 +19,9 @@ public class PropertyMapImpl implements PropertyMap, Serializable {
     private final boolean isRelation;
 
     public PropertyMapImpl(String propertyName, String propertyMapName, Class propertyType, boolean isRelation) {
+        Objects.requireNonNull(propertyName);
+        Objects.requireNonNull(propertyMapName);
+        Objects.requireNonNull(propertyType);
         this.propertyName = propertyName;
         this.propertyMapName = propertyMapName;
         this.propertyType = propertyType;

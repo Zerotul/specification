@@ -87,7 +87,12 @@ public abstract class AbstractMapper<T extends Serializable> implements Mapper<T
         try {
             T entity = getNewRecord();
             for (Map.Entry<PropertyMap, Setter> entry : setters.entrySet()) {
-                entry.getValue().accept(entity, rs.getObject(entry.getKey().getPropertyMapName()));
+                String columnName = entry.getKey().getPropertyMapName();
+                int index =columnName.indexOf(".");
+                if(index>-1){
+                    columnName = columnName.substring(index, columnName.length());
+                }
+                entry.getValue().accept(entity, rs.getObject(columnName));
             }
             return entity;
         } catch (SQLException e) {
