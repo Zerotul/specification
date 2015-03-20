@@ -14,8 +14,8 @@ public class MockEntitySqlMapper<T extends Mock> extends AbstractMapper<T> {
     }
 
     @Override
-    protected void init() {
-        super.init();
+    protected void initInternal() {
+        super.initInternal();
         addProperty(Mock::getField1, "field_1");
         addProperty(Mock::getField2, "field_2");
         addProperty(Mock::getField3, "field_3");

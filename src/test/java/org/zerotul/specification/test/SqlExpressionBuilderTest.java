@@ -56,6 +56,8 @@ public class SqlExpressionBuilderTest {
                 "field_2 <> ? or " +
                 "field_3 like ? and " +
                 "field_4 = ? LIMIT 4 OFFSET 0";
+        MockEntitySqlMapper<MockEntity> mockMapper = new MockEntitySqlMapper(MockEntity.class);
+        mockMapper.init();
         Expression<MockEntity, Query> expression = from(MockEntity.class)
                 .where()
                  .restriction(equal(MockEntity::getField1, "value1"))
@@ -65,7 +67,7 @@ public class SqlExpressionBuilderTest {
                  .restriction(like(MockEntity::getField3, "%value3%"))
                 .predicate(PredicateOperation.AND)
                  .restriction(equal(MockEntity::getField4, 0))
-                .endWhere().max(4).offset(0).endFrom().isSatisfied(new SqlExpressionBuilder<>(new MockEntitySqlMapper(MockEntity.class)));
+                .endWhere().max(4).offset(0).endFrom().isSatisfied(new SqlExpressionBuilder<>(mockMapper));
 
         Query query = expression.toResult();
         assertEquals(resultSql.toLowerCase().trim(), query.getQuery().toLowerCase().trim());
@@ -75,7 +77,7 @@ public class SqlExpressionBuilderTest {
         assertEquals(0, query.getParams().get(3));
 
         resultSql = FROM_CLAUSE;
-        expression = from(MockEntity.class).endFrom().isSatisfied(new SqlExpressionBuilder<>(new MockEntitySqlMapper(MockEntity.class)));
+        expression = from(MockEntity.class).endFrom().isSatisfied(new SqlExpressionBuilder<>(mockMapper));
         assertEquals(resultSql.toLowerCase().trim(), expression.toResult().getQuery().toLowerCase().trim());
 
         resultSql = FROM_CLAUSE+
@@ -97,7 +99,7 @@ public class SqlExpressionBuilderTest {
                 .restriction(equal(MockEntity::getField4, 0))
                 .predicate(PredicateOperation.AND)
                 .restriction(equal(MockEntity::getMock, mockEntity))
-                .endWhere().endFrom().isSatisfied(new SqlExpressionBuilder<>(new MockEntitySqlMapper(MockEntity.class)));
+                .endWhere().endFrom().isSatisfied(new SqlExpressionBuilder<>(mockMapper));
 
         query = expression.toResult();
 
@@ -115,6 +117,8 @@ public class SqlExpressionBuilderTest {
         String resultSql = FROM_CLAUSE +
                 " where field_1 = ? and " +
                 "field_2 <> ? order by field_1 desc";
+        MockEntitySqlMapper<MockEntity> mockMapper = new MockEntitySqlMapper(MockEntity.class);
+        mockMapper.init();
         Expression<MockEntity, Query> expression = from(MockEntity.class)
                 .where()
                 .restriction(equal(MockEntity::getField1, "value1"))
@@ -122,7 +126,7 @@ public class SqlExpressionBuilderTest {
                 .restriction(notEqual(MockEntity::getField2, "value2"))
                 .endWhere()
                 .order(desc(MockEntity::getField1))
-                .endFrom().isSatisfied(new SqlExpressionBuilder<>(new MockEntitySqlMapper(MockEntity.class)));
+                .endFrom().isSatisfied(new SqlExpressionBuilder<>(mockMapper));
 
         assertEquals(resultSql.toLowerCase().trim(), expression.toResult().getQuery().toLowerCase().trim());
 
@@ -137,26 +141,26 @@ public class SqlExpressionBuilderTest {
                 .restriction(notEqual(MockEntity::getField2, "value2"))
                 .endWhere()
                 .order(asc(MockEntity::getField1))
-                .endFrom().isSatisfied(new SqlExpressionBuilder<>(new MockEntitySqlMapper(MockEntity.class)));
+                .endFrom().isSatisfied(new SqlExpressionBuilder<>(mockMapper));
 
         assertEquals(resultSql.toLowerCase().trim(), expression.toResult().getQuery().toLowerCase().trim());
 
         resultSql = FROM_CLAUSE+" order by field_1 desc";
         expression = from(MockEntity.class)
                 .order(desc(MockEntity::getField1))
-                .endFrom().isSatisfied(new SqlExpressionBuilder<>(new MockEntitySqlMapper(MockEntity.class)));
+                .endFrom().isSatisfied(new SqlExpressionBuilder<>(mockMapper));
         assertEquals(resultSql.toLowerCase().trim(), expression.toResult().getQuery().toLowerCase().trim());
 
         resultSql = FROM_CLAUSE+" order by field_1 asc";
         expression = from(MockEntity.class)
                 .order(asc(MockEntity::getField1))
-                .endFrom().isSatisfied(new SqlExpressionBuilder<>(new MockEntitySqlMapper(MockEntity.class)));
+                .endFrom().isSatisfied(new SqlExpressionBuilder<>(mockMapper));
         assertEquals(resultSql.toLowerCase().trim(), expression.toResult().getQuery().toLowerCase().trim());
 
         resultSql = FROM_CLAUSE+" order by field_1, field_2 asc";
         expression = from(MockEntity.class)
                 .order(asc(MockEntity::getField1, MockEntity::getField2))
-                .endFrom().isSatisfied(new SqlExpressionBuilder<>(new MockEntitySqlMapper(MockEntity.class)));
+                .endFrom().isSatisfied(new SqlExpressionBuilder<>(mockMapper));
         assertEquals(resultSql.toLowerCase().trim(), expression.toResult().getQuery().toLowerCase().trim());
     }
 

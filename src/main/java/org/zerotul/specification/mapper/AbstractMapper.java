@@ -32,13 +32,16 @@ public abstract class AbstractMapper<T extends Serializable> implements Mapper<T
         relationPropertyMap = new HashMap<>();
         setters = new HashMap<>();
         this.recorder = EnhancerRecorder.create(clazz);
-        init();
+    }
+
+    public final void init(){
+        initInternal();
         propertyMap = Collections.unmodifiableMap(propertyMap);
         relationPropertyMap = Collections.unmodifiableMap(relationPropertyMap);
         setters = Collections.unmodifiableMap(setters);
     }
 
-    protected void init() {
+    protected void initInternal() {
 
     }
 
