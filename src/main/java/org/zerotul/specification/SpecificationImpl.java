@@ -20,7 +20,7 @@ public class SpecificationImpl<T extends Serializable> implements Specification<
     }
 
     @Override
-    public <V> Expression<V> isSatisfied(ExpressionBuilder<? super T, V> expressionBuilder) throws BuildException {
+    public <V> Expression<V> isSatisfied(ExpressionBuilder<T, V> expressionBuilder) throws BuildException {
         return  expressionBuilder.buildExpression(from);
     }
 
