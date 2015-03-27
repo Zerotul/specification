@@ -13,9 +13,9 @@ public class SpecificationImpl<T extends Serializable> implements Specification<
 
     private static final long serialVersionUID = 42922816840472647L;
 
-    private final FromSpecification<? extends T> from;
+    private final FromSpecification<T> from;
 
-    public SpecificationImpl(FromSpecification<? extends T> from) {
+    public SpecificationImpl(FromSpecification<T> from) {
         this.from = from;
     }
 
@@ -25,7 +25,7 @@ public class SpecificationImpl<T extends Serializable> implements Specification<
     }
 
     @Override
-    public Class<? extends T> getResultClass() {
+    public Class<T> getResultClass() {
         return from.getFromClass();
     }
 
