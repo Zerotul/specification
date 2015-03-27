@@ -36,7 +36,7 @@ public class SqlExpressionBuilder<T extends Serializable> implements ExpressionB
     }
 
     @Override
-    public Expression<T, Query> buildExpression(FromSpecification<T> specification) throws BuildException {
+    public Expression<Query> buildExpression(FromSpecification<? extends T> specification) throws BuildException {
         try {
             String fromClause = fromClause(specification);
             String whereClause = whereClause(specification);
@@ -48,13 +48,13 @@ public class SqlExpressionBuilder<T extends Serializable> implements ExpressionB
                     .append(pagingClause);
             String rowCountQuery = new StringBuilder("SELECT count(*) FROM ")
                     .append(mapper.getMapName()).append(" ").append(whereClause).toString();
-            return new SqlExpression<>(new Query(builder.toString(), params, rowCountQuery));
+            return new SqlExpression(new Query(builder.toString(), params, rowCountQuery));
         } catch (IntrospectionException e) {
             throw new BuildException(e);
         }
     }
 
-    private String fromClause(FromSpecification<T> specification) throws IntrospectionException {
+    private String fromClause(FromSpecification<? extends T> specification) throws IntrospectionException {
         StringBuilder builder = new StringBuilder("SELECT ");
         BeanInfo fromInfo = Introspector.getBeanInfo(specification.getFromClass());
         List<PropertyDescriptor> descriptors = Arrays.asList(fromInfo.getPropertyDescriptors());
@@ -72,7 +72,7 @@ public class SqlExpressionBuilder<T extends Serializable> implements ExpressionB
         return builder.toString();
     }
 
-    private String whereClause(FromSpecification<T> specification) throws BuildException {
+    private String whereClause(FromSpecification<? extends T> specification) throws BuildException {
         WhereSpecification where = specification.getWhere();
         if (where == null) return "";
 
@@ -120,10 +120,10 @@ public class SqlExpressionBuilder<T extends Serializable> implements ExpressionB
         return builder.toString();
     }
 
-    private String orderClause(FromSpecification<T> from) {
+    private String orderClause(FromSpecification<? extends T> from) {
         if (from.getOrder() == null) return "";
 
-        Order<T> order = from.getOrder();
+        Order<? extends T> order = from.getOrder();
         StringBuilder builder = new StringBuilder(" ORDER BY ");
         List<String> propertyNames = order.getPropertyNames().stream()
                 .map((String propertyName) -> {
@@ -137,7 +137,7 @@ public class SqlExpressionBuilder<T extends Serializable> implements ExpressionB
         return builder.toString();
     }
 
-    private String pagingClause(FromSpecification<T> from) {
+    private String pagingClause(FromSpecification<? extends T> from) {
         if (from.getMax() > 0) {
             StringBuilder builder = new StringBuilder(" LIMIT ")
                     .append(from.getMax()).append(" OFFSET ").append(from.getOffset());

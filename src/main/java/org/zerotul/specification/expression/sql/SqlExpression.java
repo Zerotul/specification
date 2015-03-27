@@ -5,7 +5,7 @@ import org.zerotul.specification.expression.Expression;
 /**
  * Created by zerotul on 12.03.15.
  */
-public class SqlExpression<T> implements Expression<T, Query> {
+public class SqlExpression implements Expression<Query> {
 
     private final Query query;
 

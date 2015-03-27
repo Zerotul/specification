@@ -11,7 +11,7 @@ import java.io.Serializable;
  */
 public interface Specification<T extends Serializable> extends Serializable{
 
-    public <V> Expression<T, V> isSatisfied(ExpressionBuilder<T, V> expressionBuilder) throws BuildException;
+    public <E> Expression<E> isSatisfied(ExpressionBuilder<? super T, E> expressionBuilder) throws BuildException;
 
-    public Class<T> getResultClass();
+    public Class<? extends T> getResultClass();
 }

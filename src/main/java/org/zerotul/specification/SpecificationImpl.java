@@ -13,19 +13,19 @@ public class SpecificationImpl<T extends Serializable> implements Specification<
 
     private static final long serialVersionUID = 42922816840472647L;
 
-    private final FromSpecification<T> from;
+    private final FromSpecification<? extends T> from;
 
-    public SpecificationImpl(FromSpecification<T> from) {
+    public SpecificationImpl(FromSpecification<? extends T> from) {
         this.from = from;
     }
 
     @Override
-    public <V> Expression<T, V> isSatisfied(ExpressionBuilder<T, V> expressionBuilder) throws BuildException {
-        return expressionBuilder.buildExpression(from);
+    public <V> Expression<V> isSatisfied(ExpressionBuilder<? super T, V> expressionBuilder) throws BuildException {
+        return  expressionBuilder.buildExpression(from);
     }
 
     @Override
-    public Class<T> getResultClass() {
+    public Class<? extends T> getResultClass() {
         return from.getFromClass();
     }
 

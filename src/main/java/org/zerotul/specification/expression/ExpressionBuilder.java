@@ -10,5 +10,7 @@ import java.io.Serializable;
  */
 public interface ExpressionBuilder<T extends Serializable, V>  {
 
-    public Expression<T, V> buildExpression(FromSpecification<T> specification) throws BuildException;
+    public Expression<V> buildExpression(FromSpecification<? extends T> specification) throws BuildException;
+
+
 }

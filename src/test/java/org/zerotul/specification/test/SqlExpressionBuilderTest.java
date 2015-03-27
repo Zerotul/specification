@@ -58,7 +58,7 @@ public class SqlExpressionBuilderTest {
                 "field_4 = ? LIMIT 4 OFFSET 0";
         MockEntitySqlMapper<MockEntity> mockMapper = new MockEntitySqlMapper(MockEntity.class);
         mockMapper.init();
-        Expression<MockEntity, Query> expression = from(MockEntity.class)
+        Expression<Query> expression = from(MockEntity.class)
                 .where()
                  .restriction(equal(MockEntity::getField1, "value1"))
                 .predicate(PredicateOperation.AND)
@@ -119,7 +119,7 @@ public class SqlExpressionBuilderTest {
                 "field_2 <> ? order by field_1 desc";
         MockEntitySqlMapper<MockEntity> mockMapper = new MockEntitySqlMapper(MockEntity.class);
         mockMapper.init();
-        Expression<MockEntity, Query> expression = from(MockEntity.class)
+        Expression<Query> expression = from(MockEntity.class)
                 .where()
                 .restriction(equal(MockEntity::getField1, "value1"))
                 .predicate(PredicateOperation.AND)
