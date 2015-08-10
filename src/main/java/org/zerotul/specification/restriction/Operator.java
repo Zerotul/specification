@@ -5,5 +5,5 @@ package org.zerotul.specification.restriction;
  */
 public enum Operator {
 
-    EQUAL, LIKE, NOT_EQUAL
+    EQUAL, LIKE, NOT_EQUAL, QT
 }

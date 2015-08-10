@@ -21,4 +21,16 @@ public interface WhereSpecification<T extends Serializable> extends Serializable
     public void setPredicate(PredicateSpecification<T> predicate);
 
     public boolean isLast();
+
+    public WhereSpecification<T> startBlock();
+
+    public int startBlockCount();
+
+    public int endBlockCount();
+
+    boolean hasStartBlock();
+
+    boolean hasEndBlock();
+
+    WhereSpecification<T> endBlock();
 }

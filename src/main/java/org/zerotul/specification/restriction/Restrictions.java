@@ -20,4 +20,8 @@ public abstract class Restrictions {
     public static  <T extends Serializable, R> Restriction<T, R> notEqual(Function<T, R> getter, R value){
         return new SimpleRestriction<>(getter, value, Operator.NOT_EQUAL);
     }
+
+    public static <T extends Serializable, R> Restriction<T, R> qt(Function<T, R> getter, R value){
+        return new SimpleRestriction<>(getter, value, Operator.QT);
+    }
 }

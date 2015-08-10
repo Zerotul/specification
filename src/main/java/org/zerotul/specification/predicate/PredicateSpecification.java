@@ -19,4 +19,6 @@ public interface PredicateSpecification<T extends Serializable> extends Serializ
       public WhereSpecification<T> getBeforeWhere();
 
       public WhereSpecification<T> getAfterWhere();
+
+      public PredicateSpecification<T> endBlock();
 }

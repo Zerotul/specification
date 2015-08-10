@@ -157,13 +157,64 @@ public class SqlExpressionBuilderTest {
                 .endFrom().isSatisfied(new SqlExpressionBuilder<>(mockMapper));
         assertEquals(resultSql.toLowerCase().trim(), expression.toResult().getQuery().toLowerCase().trim());
 
-        resultSql = FROM_CLAUSE+" order by field_1, field_2 asc";
+        resultSql = FROM_CLAUSE+" order by field_1, field_2 asc field_3 desc";
         expression = from(MockEntity.class)
                 .order(asc(MockEntity::getField1, MockEntity::getField2))
+                .order(desc(MockEntity::getField3))
                 .endFrom().isSatisfied(new SqlExpressionBuilder<>(mockMapper));
         assertEquals(resultSql.toLowerCase().trim(), expression.toResult().getQuery().toLowerCase().trim());
     }
 
+    @Test
+    public void testBlockBuildExpression() throws BuildException {
+        String resultSql = FROM_CLAUSE +
+                " where (field_1 = ? and " +
+                "(field_2 <> ? and field_3 = ?)) or (field_4 = ?)";
+        MockEntitySqlMapper<MockEntity> mockMapper = new MockEntitySqlMapper(MockEntity.class);
+        mockMapper.init();
+        Expression<Query> queryExpression = from(MockEntity.class)
+                .where()
+                .startBlock()
+                    .restriction(equal(MockEntity::getField1, "value1"))
+                    .predicate(PredicateOperation.AND)
+                    .startBlock()
+                        .restriction(notEqual(MockEntity::getField2, "value2"))
+                        .predicate(PredicateOperation.AND)
+                        .restriction(equal(MockEntity::getField3, "value3"))
+                    .endBlock()
+                .endBlock()
+                .predicate(PredicateOperation.OR)
+                .startBlock()
+                   .restriction(equal(MockEntity::getField4, "value4"))
+                .endBlock().endWhere().endFrom().isSatisfied(new SqlExpressionBuilder<>(mockMapper));
 
+        assertEquals(resultSql.toLowerCase().trim(), queryExpression.toResult().getQuery().toLowerCase().trim());
+
+         resultSql = FROM_CLAUSE +
+                " where ((field_1 = ? or field_2 = ?) and " +
+                "(field_2 <> ? and field_3 = ?)) or (field_4 = ?)";
+
+         queryExpression = from(MockEntity.class)
+                .where()
+                .startBlock()
+                  .startBlock()
+                    .restriction(equal(MockEntity::getField1, "value1"))
+                    .predicate(PredicateOperation.OR)
+                    .restriction(equal(MockEntity::getField2, "value2"))
+                  .endBlock()
+                    .predicate(PredicateOperation.AND)
+                  .startBlock()
+                    .restriction(notEqual(MockEntity::getField2, "value2"))
+                    .predicate(PredicateOperation.AND)
+                    .restriction(equal(MockEntity::getField3, "value3"))
+                  .endBlock()
+                .endBlock()
+                .predicate(PredicateOperation.OR)
+                .startBlock()
+                   .restriction(equal(MockEntity::getField4, "value4"))
+                .endBlock().endWhere().endFrom().isSatisfied(new SqlExpressionBuilder<>(mockMapper));
+
+        assertEquals(resultSql.toLowerCase().trim(), queryExpression.toResult().getQuery().toLowerCase().trim());
+    }
 
 }

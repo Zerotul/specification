@@ -24,13 +24,15 @@ public class EnhancerRecorder<T extends Serializable> implements Recorder<T> {
 
     private final Class<T> clazz;
 
-    private String currentPropertyName;
+    private ThreadLocal<String> currentPropertyName;
 
-    private Class currentPropertyType;
+    private ThreadLocal<Class> currentPropertyType;
 
     private EnhancerRecorder(T object, Class<T> clazz) {
         this.object = object;
         this.clazz = clazz;
+        this.currentPropertyName = new ThreadLocal<>();
+        this.currentPropertyType = new ThreadLocal<>();
     }
 
 
@@ -45,13 +47,13 @@ public class EnhancerRecorder<T extends Serializable> implements Recorder<T> {
     }
 
     @Override
-    public synchronized <R> String getPropertyName(Function<T, R> getter){
+    public  <R> String getPropertyName(Function<T, R> getter){
         try{
             getter.apply(object);
-            return currentPropertyName;
+            return currentPropertyName.get();
         }finally {
-            this.currentPropertyName = null;
-            this.currentPropertyType = null;
+            this.currentPropertyName.set(null);
+            this.currentPropertyType.set(null);
         }
     }
 
@@ -59,10 +61,10 @@ public class EnhancerRecorder<T extends Serializable> implements Recorder<T> {
     public synchronized  <R> Class<R> getPropertyType(Function<T, R> getter) {
         try{
             getter.apply(object);
-            return currentPropertyType;
+            return currentPropertyType.get();
         }finally {
-            this.currentPropertyType = null;
-            this.currentPropertyName = null;
+            this.currentPropertyName.set(null);
+            this.currentPropertyType.set(null);
         }
     }
 
@@ -83,8 +85,8 @@ public class EnhancerRecorder<T extends Serializable> implements Recorder<T> {
         public synchronized Object intercept(Object o, Method method, Object[] args, MethodProxy methodProxy) throws Throwable {
             String propertyName = this.propertyMap.get(method.getName());
             if(propertyName!=null) {
-                recorder.currentPropertyName =propertyName;
-                recorder.currentPropertyType = method.getReturnType();
+                recorder.currentPropertyName.set(propertyName);
+                recorder.currentPropertyType.set(method.getReturnType());
                 return methodProxy.invokeSuper(o, args);
             }
 
@@ -98,8 +100,8 @@ public class EnhancerRecorder<T extends Serializable> implements Recorder<T> {
                 }
             }
             if (propertyName==null) throw new IllegalStateException("property for a method "+method.getName()+" in a class "+this.clazz+" not found");
-            recorder.currentPropertyName = propertyName;
-            recorder.currentPropertyType = method.getReturnType();
+            recorder.currentPropertyName.set(propertyName);
+            recorder.currentPropertyType.set(method.getReturnType());
             return methodProxy.invokeSuper(o, args);
         }
 

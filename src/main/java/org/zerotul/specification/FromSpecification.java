@@ -3,6 +3,7 @@ package org.zerotul.specification;
 import org.zerotul.specification.order.Order;
 
 import java.io.Serializable;
+import java.util.List;
 
 /**
  * Created by zerotul on 12.03.15.
@@ -13,7 +14,7 @@ public interface FromSpecification<T extends Serializable> extends Serializable 
 
     public FromSpecification<T> order(Order<T> order);
 
-    public Order<T> getOrder();
+    public List<Order<T>> getOrder();
 
     public Class<T> getFromClass();
 

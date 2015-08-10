@@ -9,6 +9,7 @@ import org.zerotul.specification.predicate.PredicateOperation;
 import org.zerotul.specification.WhereSpecification;
 import org.zerotul.specification.exception.BuildException;
 import org.zerotul.specification.mapper.Mapper;
+import org.zerotul.specification.predicate.PredicateSpecification;
 import org.zerotul.specification.restriction.Operator;
 import org.zerotul.specification.restriction.Restriction;
 
@@ -29,7 +30,15 @@ public class SqlExpressionBuilder<T extends Serializable> implements ExpressionB
     private final Mapper mapper;
 
     private final List params;
+    private static final Map<Operator, String> operatorMap;
 
+    static {
+        operatorMap = new HashMap<>();
+        operatorMap.put(Operator.EQUAL, "=");
+        operatorMap.put(Operator.LIKE, "LIKE");
+        operatorMap.put(Operator.NOT_EQUAL, "<>");
+        operatorMap.put(Operator.QT, ">");
+    }
     public SqlExpressionBuilder(Mapper mapper) {
         this.mapper = mapper;
         this.params = new ArrayList<>();
@@ -78,21 +87,17 @@ public class SqlExpressionBuilder<T extends Serializable> implements ExpressionB
 
         StringBuilder builder = new StringBuilder(" WHERE ");
         do {
+            if(where.hasStartBlock()){
+                for(int i =0; i<where.startBlockCount(); i++) {
+                    builder.append("(");
+                }
+            }
             Restriction restriction = where.getRestriction();
             Optional<PropertyMap> optional = Optional.of(mapper.getPropertyMap(restriction.getPropertyName()));
             builder.append(optional.get().getPropertyMapName());
-            Operator operator = restriction.getOperator();
-            switch (operator) {
-                case EQUAL:
-                    builder.append(" = ");
-                    break;
-                case LIKE:
-                    builder.append(" LIKE ");
-                    break;
-                case NOT_EQUAL:
-                    builder.append(" <> ");
-                    break;
-            }
+            Optional<String> operator = Optional.of(operatorMap.get(restriction.getOperator()));
+            builder.append(" ").append(operator.get()).append(" ");
+
             builder.append("?");
             Object value;
             if (optional.get().isRelation()) {
@@ -102,8 +107,14 @@ public class SqlExpressionBuilder<T extends Serializable> implements ExpressionB
             }
             params.add(value);
 
+            if(where.hasEndBlock()){
+                for(int i =0; i<where.endBlockCount(); i++) {
+                    builder.append(")");
+                }
+            }
             if (!where.isLast()) {
-                PredicateOperation operation = where.getPredicate().getOperation();
+                PredicateSpecification<T> predicate = where.getPredicate();
+                PredicateOperation operation = predicate.getOperation();
                 switch (operation) {
                     case AND:
                         builder.append(" AND ");
@@ -121,19 +132,24 @@ public class SqlExpressionBuilder<T extends Serializable> implements ExpressionB
     }
 
     private String orderClause(FromSpecification<? extends T> from) {
-        if (from.getOrder() == null) return "";
+        if (from.getOrder() == null || from.getOrder().isEmpty()) return "";
 
-        Order<? extends T> order = from.getOrder();
-        StringBuilder builder = new StringBuilder(" ORDER BY ");
-        List<String> propertyNames = order.getPropertyNames().stream()
-                .map((String propertyName) -> {
-                    PropertyMap property = mapper.getPropertyMap(propertyName);
-                    if (property == null)
-                        throw new IllegalArgumentException("property not found, propertyName=" + propertyName);
-                    return property.getPropertyMapName();
-                }).collect(Collectors.toList());
-        builder.append(String.join(", ", propertyNames));
-        builder.append(" ").append(order.getOrderType().toString());
+        List<? extends Order<? extends T>> orders = from.getOrder();
+        StringBuilder builder = new StringBuilder(" ORDER BY");
+
+        orders.forEach((Order<? extends T> order) -> {
+            builder.append(" ");
+            List<String> propertyNames = order.getPropertyNames().stream()
+                    .map((String propertyName) -> {
+                        PropertyMap property = mapper.getPropertyMap(propertyName);
+                        if (property == null)
+                            throw new IllegalArgumentException("property not found, propertyName=" + propertyName);
+                        return property.getPropertyMapName();
+                    }).collect(Collectors.toList());
+            builder.append(String.join(", ", propertyNames));
+            builder.append(" ").append(order.getOrderType().toString());
+        });
+
         return builder.toString();
     }
 

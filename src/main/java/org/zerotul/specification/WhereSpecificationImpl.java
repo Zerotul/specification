@@ -22,6 +22,11 @@ public class WhereSpecificationImpl<T extends Serializable> implements WhereSpec
 
     private final Recorder<T> recorder;
 
+    private int startBlock;
+
+    private int endBlock;
+
+
     public WhereSpecificationImpl(FromSpecification<T> from, Recorder<T> recorder) {
         this.from = from;
         this.recorder = recorder;
@@ -59,6 +64,37 @@ public class WhereSpecificationImpl<T extends Serializable> implements WhereSpec
         return predicate==null;
     }
 
+    @Override
+    public WhereSpecification<T> startBlock() {
+       startBlock += 1;
+        return this;
+    }
+
+    @Override
+    public int startBlockCount() {
+        return startBlock;
+    }
+
+    @Override
+    public int endBlockCount() {
+        return endBlock;
+    }
+
+    @Override
+    public boolean hasStartBlock() {
+        return startBlock>0;
+    }
+
+    @Override
+    public boolean hasEndBlock() {
+        return endBlock>0;
+    }
+
+    @Override
+    public WhereSpecification<T> endBlock() {
+        this.endBlock += 1;
+        return this;
+    }
 
     @Override
     public boolean equals(Object o) {

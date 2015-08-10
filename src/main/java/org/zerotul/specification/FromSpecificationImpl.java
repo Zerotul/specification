@@ -6,6 +6,8 @@ import org.zerotul.specification.recorder.EnhancerRecorder;
 import org.zerotul.specification.recorder.Recorder;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by zerotul on 12.03.15.
@@ -18,7 +20,7 @@ public class FromSpecificationImpl<T extends Serializable> implements FromSpecif
 
     private WhereSpecification<T> where;
 
-    private Order<T> order;
+    private List<Order<T>> orders;
 
     private int max;
 
@@ -29,6 +31,7 @@ public class FromSpecificationImpl<T extends Serializable> implements FromSpecif
     public FromSpecificationImpl(Class<T> clazz) {
         this.clazz = clazz;
         this.recorder = EnhancerRecorder.create(clazz);
+        this.orders = new ArrayList<>();
     }
 
     @Override
@@ -40,15 +43,14 @@ public class FromSpecificationImpl<T extends Serializable> implements FromSpecif
 
     @Override
     public FromSpecification<T> order(Order<T> order) {
-        if (this.order!=null) throw new IllegalStateException("the order clause can not be changed");
-        this.order = order;
-        this.order.setRecorder(recorder);
+        order.setRecorder(recorder);
+        orders.add(order);
         return this;
     }
 
     @Override
-    public Order<T> getOrder() {
-        return order;
+    public List<Order<T>> getOrder() {
+        return orders;
     }
 
 
@@ -97,7 +99,7 @@ public class FromSpecificationImpl<T extends Serializable> implements FromSpecif
         FromSpecificationImpl that = (FromSpecificationImpl) o;
 
         if (clazz != null ? !clazz.equals(that.clazz) : that.clazz != null) return false;
-        if (order != null ? !order.equals(that.order) : that.order != null) return false;
+        if (orders != null ? !orders.equals(that.orders) : that.orders != null) return false;
         if (where != null ? !where.equals(that.where) : that.where != null) return false;
         if (max != that.max) return false;
         if (offset != that.offset) return false;
@@ -109,7 +111,7 @@ public class FromSpecificationImpl<T extends Serializable> implements FromSpecif
     public int hashCode() {
         int result = clazz != null ? clazz.hashCode() : 0;
         result = 31 * result + (where != null ? where.hashCode() : 0);
-        result = 31 * result + (order != null ? order.hashCode() : 0);
+        result = 31 * result + (orders != null ? orders.hashCode() : 0);
         return result;
     }
 }

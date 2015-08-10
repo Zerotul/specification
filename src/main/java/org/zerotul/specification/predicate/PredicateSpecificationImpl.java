@@ -22,6 +22,7 @@ public class PredicateSpecificationImpl<T extends Serializable> implements Predi
 
     private final Recorder<T> recorder;
 
+
     public PredicateSpecificationImpl(WhereSpecification<T> where, Recorder<T> recorder) {
         this.beforeWhere = where;
         this.recorder = recorder;
@@ -54,6 +55,12 @@ public class PredicateSpecificationImpl<T extends Serializable> implements Predi
     @Override
     public WhereSpecification<T> getAfterWhere() {
         return afterWhere;
+    }
+
+    @Override
+    public PredicateSpecification<T> endBlock() {
+        beforeWhere.endBlock();
+        return this;
     }
 
     @Override
